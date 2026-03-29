@@ -1,13 +1,32 @@
 from fastapi import FastAPI,HTTPException,Path,Query
 import pandas as pd
 import numpy as np
+from db import engine,Base,Sessionlocal
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+import models
+ 
 
+
+
+Base.metadata.create_all(bind=engine)
 
 app=FastAPI()
 
 @app.get("/")
 def home():
     return {"Message":"Hello world"}
+
+@app.get("/db_test")
+def test_db():
+    try:
+        with engine.connect() as con:
+            result=con.execute(text("select 1"))
+            return {"database":"Connected",
+                    "result":str(result.fetchone())
+                    }
+    except Exception as e:
+        return str(e)
 
 def load_data():
     path=r"C:\Users\DELL\Downloads\students_complete.csv"
